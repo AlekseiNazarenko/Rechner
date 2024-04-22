@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biegemoment-Rechner</title>
+    <link rel="stylesheet" href="Rechner.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Biegemoment-Rechner für HEA-Profile</h1>
+        <form id="biegemomentForm">
+            <label for="profilTyp">HEA-Profil-Typ:</label>
+            <select id="profilTyp" name="profilTyp" onchange="toggleProfileInput()">
+                <option value="auswahl">Aus der Liste auswählen</option>
+                <option value="eigen">Eigenes Profil definieren</option>
+            </select><br><br>
+
+            <div id="auswahlProfil" style="display: block;">
+                <label for="profil">HEA-Profil:</label>
+                <select id="profil" name="profil">
+                    <option value="HEA200">HEA200</option>
+                    <option value="HEA260">HEA260</option>
+                    <option value="HEA300">HEA300</option>
+                    <!-- Weitere Optionen für andere HEA-Profile hier hinzufügen -->
+                </select><br><br>
+            </div>
+
+            <div id="eigenesProfil" style="display: none;">
+                <label for="hoehe">Höhe des Profils (in mm):</label>
+                <input type="number" id="hoehe" name="hoehe" step="0.1"><br><br>
+
+                <label for="breite">Breite des Profils (in mm):</label>
+                <input type="number" id="breite" name="breite" step="0.1"><br><br>
+
+                <label for="dickeSteg">Dicke des Stegs (in mm):</label>
+                <input type="number" id="dickeSteg" name="dickeSteg" step="0.1"><br><br>
+
+                <label for="dickeFlansch">Dicke des Flansches (in mm):</label>
+                <input type="number" id="dickeFlansch" name="dickeFlansch" step="0.1"><br><br>
+            </div>
+
+            <label for="typ">Typ der Belastung:</label>
+            <select id="typ" name="typ">
+                <option value="kraft">Angewandte Kraft (kN)</option>
+                <option value="linienlast">Linienlast (kN/m)</option>
+            </select><br><br>
+
+            <div id="kraftInput">
+                <label for="kraft">Angewandte Kraft (in kN):</label>
+                <input type="number" id="kraft" name="kraft" step="0.1">
+            </div>
+
+            <div id="linienlastInput" style="display:none;">
+                <label for="last">Linienlast (in kN/m):</label>
+                <input type="number" id="last" name="last" step="0.1">
+            </div>
+            
+            <label for="laenge">Hebellänge (in Metern):</label>
+            <input type="number" id="laenge" name="laenge" step="0.01" required><br><br>
+            
+            <button type="button" onclick="berechneBiegemoment()">Biegemoment berechnen</button>
+        </form>
+
+        <div id="ergebnis"></div>
+    </div>
+
+    <script>
+        function toggleProfileInput() {
+            const profilTyp = document.getElementById('profilTyp').value;
+            if (profilTyp === 'auswahl') {
+                document.getElementById('auswahlProfil').style.display = 'block';
+                document.getElementById('eigenesProfil').style.display = 'none';
+            } else {
+                document.getElementById('auswahlProfil').style.display = 'none';
+                document.getElementById('eigenesProfil').style.display = 'block';
+            }
+        }
+
+        function berechneBiegemoment() {
+            const profilTyp = document.getElementById('profilTyp').value;
+            const typ = document.getElementById('typ').value;
+            const laenge = parseFloat(document.getElementById('laenge').value);
+
+            let kraft, last;
+            if (typ === 'kraft') {
+                kraft = parseFloat(document.getElementById('kraft').value);
+                // Überprüfen, ob die Eingaben gültige Zahlen sind
+                if (isNaN(kraft) || isNaN(laenge)) {
+                    alert("Bitte geben Sie gültige Zahlen ein.");
+                    return;
+                }
+            } else {
+                last = parseFloat(document.getElementById('last').value);
+                // Überprüfen, ob die Eingaben gültige Zahlen sind
+                if (isNaN(last) || isNaN(laenge)) {
+                    alert("Bitte geben Sie gültige Zahlen ein.");
+                    return;
+                }
+            }
+
+            let aufnehmbaresBiegemoment, widerstandsmoment;
+            if (profilTyp === 'auswahl') {
+                // Tabelle mit den aufnehmbaren Biegemomenten für verschiedene HEA-Profile
+                const aufnehmbaresBiegemomentTabelle = {
+                    'HEA200': 100000,
+                    'HEA260': 150000,
+                    'HEA300': 200000,
+                    // Weitere Werte für andere Profile hier hinzufügen
+                };
+
+                const profil = document.getElementById('profil').value;
+                aufnehmbaresBiegemoment = aufnehmbaresBiegemomentTabelle[profil];
+            } else {
+                // Berechnung des aufnehmbaren Biegemoments für ein selbst definiertes Profil
+                const hoehe = parseFloat(document.getElementById('hoehe').value);
+                const breite = parseFloat(document.getElementById('breite').value);
+                const dickeSteg = parseFloat(document.getElementById('dickeSteg').value);
+                const dickeFlansch = parseFloat(document.getElementById('dickeFlansch').value);
+
+                // Hier könnten Sie eine spezifische Berechnung des Widerstandsmoments für das benutzerdefinierte Profil einfügen
+                // Beispiel: Berechnung des Widerstandsmoments für HEA-Profile
+                widerstandsmoment = (breite * Math.pow(dickeFlansch, 2)) / 6 + ((hoehe - 2 * dickeFlansch) * Math.pow(dickeSteg, 2)) / 6;
+
+                // Berechnen Sie das aufnehmbare Biegemoment basierend auf dem Widerstandsmoment
+                aufnehmbaresBiegemoment = widerstandsmoment * 1000; // Annahme: Faktor 1000 zur Umrechnung in Newtonmeter
+            }
+
+            // Berechnung des Biegemoments
+            let biegemoment;
+            if (typ === 'kraft') {
+                biegemoment = (kraft * laenge) / 4;
+            } else {
+                biegemoment = (last * Math.pow(laenge, 2)) / 8;
+            }
+
+            // Rundung des Biegemoments auf zwei Nachkommastellen
+            biegemoment = Math.round(biegemoment * 100) / 100;
+
+            // Berechnung der prozentualen Ausnutzung
+            const prozentAusnutzung = (biegemoment / aufnehmbaresBiegemoment) * 100;
+
+            // Anzeige des Ergebnisses
+            const ergebnisElement = document.getElementById('ergebnis');
+            if (biegemoment <= aufnehmbaresBiegemoment) {
+                ergebnisElement.innerHTML = "Das Biegemoment beträgt: " + biegemoment.toFixed(2) + " Newtonmeter. Das Profil kann die Belastung aufnehmen. Die Ausnutzung beträgt: " + prozentAusnutzung.toFixed(1) + "%. Widerstandsmoment: " + widerstandsmoment.toFixed(2) + " cm³.";
+                ergebnisElement.style.color = "#007f00"; // Grüne Farbe für Erfolgsmeldung
+            } else {
+                ergebnisElement.innerHTML = "Das Biegemoment beträgt: " + biegemoment.toFixed(2) + " Newtonmeter. Das Profil kann die Belastung nicht aufnehmen. Die Ausnutzung beträgt: " + prozentAusnutzung.toFixed(1) + "%. Widerstandsmoment: " + widerstandsmoment.toFixed(2) + " cm³.";
+                ergebnisElement.style.color = "#ff0000"; // Rote Farbe für Fehlermeldung
+            }
+        }
+
+        // Funktion zum Anzeigen des entsprechenden Eingabefelds basierend auf dem Belastungstyp
+        document.getElementById('typ').addEventListener('change', function() {
+            const typ = this.value;
+            if (typ === 'kraft') {
+                document.getElementById('kraftInput').style.display = 'block';
+                document.getElementById('linienlastInput').style.display = 'none';
+            } else {
+                document.getElementById('kraftInput').style.display = 'none';
+                document.getElementById('linienlastInput').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

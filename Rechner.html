@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,6 +8,7 @@
     <title>Biegemoment-Rechner</title>
     <link rel="stylesheet" href="Rechner.css">
 </head>
+
 <body>
     <div class="container">
         <h1>Biegemoment-Rechner für HEA-Profile</h1>
@@ -20,10 +22,31 @@
             <div id="auswahlProfil" style="display: block;">
                 <label for="profil">HEA-Profil:</label>
                 <select id="profil" name="profil">
-                    <option value="HEA200">HEA200</option>
-                    <option value="HEA260">HEA260</option>
-                    <option value="HEA300">HEA300</option>
-                    <!-- Weitere Optionen für andere HEA-Profile hier hinzufügen -->
+                    <!-- HEA-Profile von HEA 100 bis HEA 1000 -->
+                    <option value="HEA100">HEA 100</option>
+                    <option value="HEA120">HEA 120</option>
+                    <option value="HEA140">HEA 140</option>
+                    <option value="HEA160">HEA 160</option>
+                    <option value="HEA180">HEA 180</option>
+                    <option value="HEA200">HEA 200</option>
+                    <option value="HEA220">HEA 220</option>
+                    <option value="HEA240">HEA 240</option>
+                    <option value="HEA260">HEA 260</option>
+                    <option value="HEA280">HEA 280</option>
+                    <option value="HEA300">HEA 300</option>
+                    <option value="HEA320">HEA 320</option>
+                    <option value="HEA340">HEA 340</option>
+                    <option value="HEA360">HEA 360</option>
+                    <option value="HEA400">HEA 400</option>
+                    <option value="HEA450">HEA 450</option>
+                    <option value="HEA500">HEA 500</option>
+                    <option value="HEA550">HEA 550</option>
+                    <option value="HEA600">HEA 600</option>
+                    <option value="HEA650">HEA 650</option>
+                    <option value="HEA700">HEA 700</option>
+                    <option value="HEA800">HEA 800</option>
+                    <option value="HEA900">HEA 900</option>
+                    <option value="HEA1000">HEA 1000</option>
                 </select><br><br>
             </div>
 
@@ -39,6 +62,13 @@
 
                 <label for="dickeFlansch">Dicke des Flansches (in mm):</label>
                 <input type="number" id="dickeFlansch" name="dickeFlansch" step="0.1"><br><br>
+
+                <label for="guete">Güte des Stahls:</label>
+                <select id="guete" name="guete">
+                    <option value="S235">S235</option>
+                    <option value="S355">S355</option>
+                    <!-- Weitere Optionen für andere Güten hier hinzufügen -->
+                </select><br><br>
             </div>
 
             <label for="typ">Typ der Belastung:</label>
@@ -94,37 +124,70 @@
             } else {
                 last = parseFloat(document.getElementById('last').value);
                 // Überprüfen, ob die Eingaben gültige Zahlen sind
-                if (isNaN(last) || isNaN(laenge)) {
+                if (isNaN(last) || istNaN(laenge)) {
                     alert("Bitte geben Sie gültige Zahlen ein.");
                     return;
                 }
             }
 
-            let aufnehmbaresBiegemoment, widerstandsmoment;
+            let aufnehmbaresBiegemoment, widerstandsmomentGesamt;
             if (profilTyp === 'auswahl') {
-                // Tabelle mit den aufnehmbaren Biegemomenten für verschiedene HEA-Profile
+                // Tabelle mit den richtigen Werten (Mpl,y) für HEA-Profile
                 const aufnehmbaresBiegemomentTabelle = {
-                    'HEA200': 100000,
-                    'HEA260': 150000,
-                    'HEA300': 200000,
+                    'HEA100': 19.51,
+                    'HEA120': 28.09,
+                    'HEA140': 40.78,
+                    'HEA160': 56.63,
+                    'HEA180': 76.36,
+                    'HEA200': 100.96,
+                    'HEA220': 133.62,
+                    'HEA240': 175.04,
+                    'HEA260': 216.22,
+                    'HEA280': 261.22,
+                    'HEA300': 325.17,
+                    'HEA320': 382.71,
+                    'HEA340': 434.98,
+                    'HEA360': 490.92,
+                    'HEA400': 602.17,
+                    'HEA450': 755.89,
+                    'HEA500': 928.16,
+                    'HEA550': 1086.33,
+                    'HEA600': 1257.57,
+                    'HEA650': 1442.27,
+                    'HEA700': 1652.74,
+                    'HEA800': 2044.76,
+                    'HEA900': 2541.03,
+                    'HEA1000': 3014.21
                     // Weitere Werte für andere Profile hier hinzufügen
                 };
 
                 const profil = document.getElementById('profil').value;
                 aufnehmbaresBiegemoment = aufnehmbaresBiegemomentTabelle[profil];
             } else {
-                // Berechnung des aufnehmbaren Biegemoments für ein selbst definiertes Profil
+                // Berechnung des Widerstandsmoments und aufnehmbaren Biegemoments für ein selbst definiertes Profil
                 const hoehe = parseFloat(document.getElementById('hoehe').value);
                 const breite = parseFloat(document.getElementById('breite').value);
                 const dickeSteg = parseFloat(document.getElementById('dickeSteg').value);
                 const dickeFlansch = parseFloat(document.getElementById('dickeFlansch').value);
+                const guete = document.getElementById('guete').value;
 
-                // Hier könnten Sie eine spezifische Berechnung des Widerstandsmoments für das benutzerdefinierte Profil einfügen
-                // Beispiel: Berechnung des Widerstandsmoments für HEA-Profile
-                widerstandsmoment = (breite * Math.pow(dickeFlansch, 2)) / 6 + ((hoehe - 2 * dickeFlansch) * Math.pow(dickeSteg, 2)) / 6;
+                // Berechnung des Widerstandsmoments für das Profil
+                widerstandsmomentGesamt = berechneWiderstandsmoment(hoehe, breite, dickeSteg, dickeFlansch);
 
-                // Berechnen Sie das aufnehmbare Biegemoment basierend auf dem Widerstandsmoment
-                aufnehmbaresBiegemoment = widerstandsmoment * 1000; // Annahme: Faktor 1000 zur Umrechnung in Newtonmeter
+                // Bestimmung der Streckgrenze (Güte) in kN/cm²
+                let streckgrenze;
+                switch (guete) {
+                    case 'S235':
+                        streckgrenze = 23.5; // Streckgrenze in kN/cm²
+                        break;
+                    case 'S355':
+                        streckgrenze = 35.5; // Streckgrenze in kN/cm²
+                        break;
+                    // Weitere Güten und ihre Streckgrenzen können hier hinzugefügt werden
+                }
+
+                // Berechnen Sie das aufnehmbares Biegemoment basierend auf dem WiderstandsmomentGesamt und der Streckgrenze
+                aufnehmbaresBiegemoment = ((widerstandsmomentGesamt * streckgrenze) / 100);
             }
 
             // Berechnung des Biegemoments
@@ -144,13 +207,26 @@
             // Anzeige des Ergebnisses
             const ergebnisElement = document.getElementById('ergebnis');
             if (biegemoment <= aufnehmbaresBiegemoment) {
-                ergebnisElement.innerHTML = "Das Biegemoment beträgt: " + biegemoment.toFixed(2) + " Newtonmeter. Das Profil kann die Belastung aufnehmen. Die Ausnutzung beträgt: " + prozentAusnutzung.toFixed(1) + "%. Widerstandsmoment: " + widerstandsmoment.toFixed(2) + " cm³.";
+                ergebnisElement.innerHTML = "Das Biegemoment beträgt: " + biegemoment.toFixed(2) + " Kilonewtonmeter. Das Profil kann die Belastung aufnehmen. Die Ausnutzung beträgt: " + prozentAusnutzung.toFixed(1) + "%. Aufnehmbares Biegemoment: " + aufnehmbaresBiegemoment.toFixed(2) + " kNm.";
                 ergebnisElement.style.color = "#007f00"; // Grüne Farbe für Erfolgsmeldung
             } else {
-                ergebnisElement.innerHTML = "Das Biegemoment beträgt: " + biegemoment.toFixed(2) + " Newtonmeter. Das Profil kann die Belastung nicht aufnehmen. Die Ausnutzung beträgt: " + prozentAusnutzung.toFixed(1) + "%. Widerstandsmoment: " + widerstandsmoment.toFixed(2) + " cm³.";
+                ergebnisElement.innerHTML = "Das Biegemoment beträgt: " + biegemoment.toFixed(2) + " Kilonewtonmeter. Das Profil kann die Belastung nicht aufnehmen. Die Ausnutzung beträgt: " + prozentAusnutzung.toFixed(1) + "%. Aufnehmbares Biegemoment: " + aufnehmbaresBiegemoment.toFixed(2) + " kNm.";
                 ergebnisElement.style.color = "#ff0000"; // Rote Farbe für Fehlermeldung
             }
         }
+
+        // Funktion zur Berechnung des Widerstandsmoments für ein I-Profil (parametrisches Profil)
+        function berechneWiderstandsmoment(hoehe, breite, dickeSteg, dickeFlansch) {
+            // Umrechnung der Eingaben in Zentimeter
+            hoehe = hoehe / 10;
+            breite = breite / 10;
+            dickeSteg = dickeSteg / 10;
+            dickeFlansch = dickeFlansch / 10;
+            // Berechnung des Widerstandsmoments für das I-Profil um die y-Achse
+            const widerstandsmomentGesamt = ((breite * Math.pow(hoehe, 2)) / 4) - (((breite - dickeSteg) * Math.pow(hoehe - 2 * dickeFlansch, 3)) / (4 * hoehe));
+            return widerstandsmomentGesamt;
+        }
+
 
         // Funktion zum Anzeigen des entsprechenden Eingabefelds basierend auf dem Belastungstyp
         document.getElementById('typ').addEventListener('change', function() {
@@ -165,4 +241,5 @@
         });
     </script>
 </body>
+
 </html>
